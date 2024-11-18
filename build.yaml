@@ -73,8 +73,7 @@ BuildWorkflow:
     - package_module_nupkg
 
   hqrmtest:
-    - DscResource_Tests_Stop_On_Fail
-    #- Invoke_HQRM_Tests_Stop_On_Fail #Pester 5
+    - Invoke_HQRM_Tests_Stop_On_Fail
 
   test:
     - Pester_Tests_Stop_On_Fail
@@ -94,17 +93,24 @@ BuildWorkflow:
 ####################################################
 
 Pester:
-  OutputFormat: NUnitXML
+  Configuration:
+    Run:
+      Path:
+        - tests/Unit
+    Output:
+      Verbosity: Detailed
+      StackTraceVerbosity: Full
+      CIFormat: Auto
+    CodeCoverage:
+      CoveragePercentTarget: 85
+      OutputPath: JaCoCo_coverage.xml
+      OutputEncoding: ascii
+      UseBreakpoints: false
+    TestResult:
+      OutputFormat: NUnitXML
+      OutputEncoding: ascii
   ExcludeFromCodeCoverage:
     - Modules/DscResource.Common
-  Script:
-    # Only run on unit test on './build.ps1 -Task test'
-    - tests/Unit
-  ExcludeTag:
-  Tag:
-  CodeCoverageThreshold: 40
-  CodeCoverageOutputFile: CodeCoverage.JaCoCo.xml
-  CodeCoverageOutputFileEncoding: ascii
 
 ####################################################
 #           Code Coverage Configuration            #
@@ -122,15 +128,27 @@ CodeCoverage:
 ####################################################
 
 DscTest:
-  ExcludeTag:
-    - 'Common Tests - New Error-Level Script Analyzer Rules'
-    - 'Common Tests - PS Script Analyzer on Resource Files' #Temp to pass build and resource is fixed
-  Tag:
-  ExcludeSourceFile:
-    - output
-  ExcludeModuleFile:
-    - Modules/DscResource.Common
-  MainGitBranch: main
+  Pester:
+    Configuration:
+      Filter:
+        ExcludeTag:
+          - "Common Tests - New Error-Level Script Analyzer Rules"
+      Output:
+        Verbosity: Detailed
+        CIFormat: Auto
+      TestResult:
+        Enabled: true
+        OutputFormat: NUnitXML
+        OutputEncoding: ascii
+        OutputPath: ./output/testResults/NUnitXml_HQRM_Tests.xml
+  Script:
+    ExcludeSourceFile:
+      - output
+    ExcludeModuleFile:
+      - Modules/DscResource.Common
+      # Must exclude built module file because it should not be tested like MOF-based resources
+      - AzureDevOpsDsc.psm1
+    MainGitBranch: main
 
 ####################################################
 #               GitHub Configuration               #
