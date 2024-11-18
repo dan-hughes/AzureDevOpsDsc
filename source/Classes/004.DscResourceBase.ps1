@@ -11,7 +11,7 @@ class DscResourceBase
         if ([String]::IsNullOrWhiteSpace($dscResourceKeyPropertyName))
         {
             $errorMessage = "Cannot obtain a 'DscResourceKey' value for the '$($this.GetType().Name)' instance."
-            New-InvalidOperationException -Message $errorMessage
+            throw (New-InvalidOperationException -Message $errorMessage)
         }
 
         return $this."$dscResourceKeyPropertyName"
@@ -29,8 +29,7 @@ class DscResourceBase
             [System.Reflection.PropertyInfo]$propertyInfo = $_
             $PropertyName = $_.Name
 
-            $propertyInfo.GetCustomAttributes($true) |
-            ForEach-Object {
+            $propertyInfo.GetCustomAttributes($true) | ForEach-Object {
 
                 if ($_.TypeId.Name -eq 'DscPropertyAttribute' -and
                     $_.Key -eq $true)
@@ -43,13 +42,13 @@ class DscResourceBase
         if ($null -eq $dscResourceKeyPropertyNames -or $dscResourceKeyPropertyNames.Count -eq 0)
         {
             $errorMessage = "Could not obtain a 'DscResourceDscKey' property for type '$($this.GetType().Name)'."
-            New-InvalidOperationException -Message $errorMessage
+            throw (New-InvalidOperationException -Message $errorMessage)
 
         }
         elseif ($dscResourceKeyPropertyNames.Count -gt 1)
         {
             $errorMessage = "Obtained more than 1 property for type '$($this.GetType().Name)' that was marked as a 'Key'. There must only be 1 property on the class set as the 'Key' for DSC."
-            New-InvalidOperationException -Message $errorMessage
+            throw (New-InvalidOperationException -Message $errorMessage)
         }
 
         return $dscResourceKeyPropertyNames[0]
@@ -67,8 +66,7 @@ class DscResourceBase
             $propertyInfo = $_
             $PropertyName = $_.Name
 
-            $propertyInfo.GetCustomAttributes($true) |
-            ForEach-Object {
+            $propertyInfo.GetCustomAttributes($true) | ForEach-Object {
 
                 if ($_.TypeId.Name -eq 'DscPropertyAttribute')
                 {

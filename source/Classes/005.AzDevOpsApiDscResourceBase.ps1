@@ -13,8 +13,6 @@ class AzDevOpsApiDscResourceBase : DscResourceBase
         return $this.GetType().ToString().Replace('AzDevOps','')
     }
 
-
-
     <#
         .NOTES
             When creating an object via the Azure DevOps API, the ID (if provided) is ignored
@@ -36,8 +34,6 @@ class AzDevOpsApiDscResourceBase : DscResourceBase
     {
         return "$($this.ResourceName)Id"
     }
-
-
 
     <#
         .NOTES
@@ -79,7 +75,8 @@ class AzDevOpsApiDscResourceBase : DscResourceBase
                 [RequiredAction]::Remove,
                 [RequiredAction]::Test))
         {
-            return "$($RequiredAction)-AzDevOps$($this.ResourceName)"
+            $result = "$($RequiredAction)-$($this.ResourceName)"
+            return $result
         }
 
         return $null
